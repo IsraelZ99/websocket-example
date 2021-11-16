@@ -10,18 +10,11 @@ public class WebSocketProperties {
     /**
      * Prefix used for WebSocket destination mappings
      */
-    private String applicationPrefix = "/school";
-
-    /**
-     * Prefix used by topics
-     */
-    private String topicPrefix = "/school";
-
+    private String[] applicationPrefix = {"/school"};
     /**
      * Endpoint that can be used to connect to
      */
     private String endpoint = "/api/socket";
-
     /**
      * Allowed origins
      */
