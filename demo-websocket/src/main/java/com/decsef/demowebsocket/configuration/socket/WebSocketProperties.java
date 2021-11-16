@@ -1,4 +1,4 @@
-package com.decsef.demowebsocket.configuration;
+package com.decsef.demowebsocket.configuration.socket;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
