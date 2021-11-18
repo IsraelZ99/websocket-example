@@ -62,6 +62,10 @@ public class SocketHandshake extends DefaultHandshakeHandler implements Handshak
 
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
+        String token = getTokenFromUri(request.getURI());
+        if (!jwtUtils.validateJwtToken(token)) {
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     public String getTokenFromUri(URI uri) {

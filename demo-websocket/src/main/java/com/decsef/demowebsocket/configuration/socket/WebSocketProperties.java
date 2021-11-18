@@ -10,7 +10,7 @@ public class WebSocketProperties {
     /**
      * Prefix used for WebSocket destination mappings
      */
-    private String[] applicationPrefix = {"/school"};
+    private String[] applicationPrefix = {"/students"};
     /**
      * Endpoint that can be used to connect to
      */

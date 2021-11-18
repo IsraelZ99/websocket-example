@@ -13,15 +13,16 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
+import java.util.List;
+
 @Controller
 @AllArgsConstructor
-@Slf4j
 public class StudentThrowSocketController {
 
     private final StudentService studentService;
 
     @SubscribeMapping("/students/get")
-    public Iterable<Student> findAllStudents(){
+    public List<Student> findAllStudents(){
         return studentService.readAllStudents();
     }
 

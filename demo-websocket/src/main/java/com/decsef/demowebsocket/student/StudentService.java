@@ -4,13 +4,15 @@ import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class StudentService {
 
     private final StudentRepository studentRepository;
 
-    public Iterable<Student> readAllStudents(){
+    public List<Student> readAllStudents(){
         return studentRepository.findAll();
     }
 
