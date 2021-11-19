@@ -1,71 +1,82 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, filter, first, Observable, switchMap } from 'rxjs';
+import { Injectable } from '@angular/core';
+import * as Rx from "rxjs";
+
 import * as SockJS from 'sockjs-client';
+import * as StompJs from 'stompjs';
+
+import { Observable } from 'rxjs/internal/Observable';
+import { filter, first, switchMap } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { environment } from '@env/environment';
 import { SocketClientState } from '../models/SocketClientState';
-import * as StompJs from 'stompjs'
-import { StompSubscription } from '@stomp/stompjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SocketClientService implements OnDestroy {
-
-  private client: StompJs.Client;
-  private state: BehaviorSubject<SocketClientState>;
+export class SocketClientService {
+  private client!: StompJs.Client;
+  private state!: BehaviorSubject<SocketClientState>;
+  private subscriptions: string[];
 
   public constructor() {
-    this.client = StompJs.over(new SockJS(environment.api));
-    this.state = new BehaviorSubject<SocketClientState>(SocketClientState.ATTEMPTING);
-    this.client.connect({}, () => {
-      // this.state.next(SocketClientState.CONNECTED);
-    });
+    this.subscriptions = [];
+    this._connection();
+  }
+
+  public stompFailureCallback() {
+    this.connect().pipe(first()).subscribe(inst => inst.disconnect(() => null));
+    setTimeout(() => {
+      this._connection();
+    }, 5000);
+    console.log('Reconnecting in 5 seconds');
   }
 
   public ngOnDestroy(): void {
-    this.connect().pipe(first()).subscribe(client => client.disconnect(() => null));
+    this.connect().pipe(first()).subscribe(inst => inst.disconnect(() => null));
   }
 
-  private connect(): Observable<StompJs.Client> {
+  private _connection() {
+    this.client = StompJs.over(new SockJS(environment.api));
+    // this.client.debug = (str) => {}; 
+    this.state = new BehaviorSubject<SocketClientState>(SocketClientState.ATTEMPTING);
+    this.client.connect({}, () => {
+      this.state.next(SocketClientState.CONNECTED);
+    }, () => this.stompFailureCallback());
+  }
+
+  public connect(): Observable<StompJs.Client> {
     return new Observable<StompJs.Client>(observer => {
       this.state.pipe(filter(state => state === SocketClientState.CONNECTED)).subscribe(() => {
         observer.next(this.client);
-      })
+      });
     });
   }
 
-  /************************************** Retrieving messages  **************************************/
-
-  public onMessage(path: string, handler = SocketClientService.jsonHandler): Observable<any> {
+  public onMessage(prefix: string, handle = SocketClientService.jsonHandler): Observable<any> {
     return this.connect().pipe(first(), switchMap(client => {
       return new Observable<any>(observer => {
-        const subscription: StompSubscription = client.subscribe(path, message => {
-          observer.next(handler(message));
-        });
-        return () => client.unsubscribe(subscription.id);
+        return client.subscribe(prefix, message => observer.next(handle(message)))
       });
-    }))
+    }));
   }
 
-  static jsonHandler(message: any): any {
+
+  public onPlainMessage(prefix: string): Observable<string> {
+    return this.onMessage(prefix, SocketClientService.textHandler);
+  }
+
+  public send(prefix: string, payload: any): void {
+    this.connect()
+      .pipe(first())
+      .subscribe(inst => inst.send(prefix, {}, JSON.stringify(payload)));
+  }
+
+  static jsonHandler(message: StompJs.Message): any {
     return JSON.parse(message.body);
   }
 
-  static textHandler(message: any): string {
+  static textHandler(message: StompJs.Message): string {
     return message.body;
-  }
-
-  public onPLainMessage(path: string): Observable<string> {
-    return this.onMessage(path, SocketClientService.textHandler);
-  }
-
-  /************************************** Retrieving messages  **************************************/
-
-
-  /************************************** Send messages  **************************************/
-  public send(path: string, payload: any): void {
-    this.connect().pipe(first())
-      .subscribe(client => client.send(path, {}, JSON.stringify(payload)));
   }
 
 }

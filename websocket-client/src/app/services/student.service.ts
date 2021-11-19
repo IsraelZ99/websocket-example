@@ -1,27 +1,33 @@
 import { Injectable } from '@angular/core';
+import * as StompJs from 'stompjs';
 import { Student } from 'app/models/Student';
-import { first, map, Observable } from 'rxjs';
+import { first, map, Observable, Subject } from 'rxjs';
 import { SocketClientService } from './socket-client.service';
 import { HttpClient } from '@angular/common/http'
+import { MessageEvent } from 'sockjs-client';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StudentService {
 
-  constructor(private socketClient: SocketClientService, private http: HttpClient) { }
+  constructor(private socketClient: SocketClientService, private http: HttpClient) {
+  }
 
   public findAll(): Observable<Student[]> {
-    return this.socketClient.onMessage("/school/students/get")
-      .pipe(first(), map(students => students.map()))
+    return this.socketClient.onMessage("/students/get");
   }
 
-  public getStudentsListing(student: any){
-    return { ...student };
+  public retrieveStudentCreated(): Observable<Student> {
+    return this.socketClient.onMessage("/students/created");
   }
 
-  public requestFindAll(): Observable<any>{
-    return this.http.get('http://localhost:8080/api/student');
+  public retrieveStudentInformation(idStudent: number): Observable<Student> {
+    return this.socketClient.onMessage(`/students/${idStudent}/get`);
+  }
+
+  public createStudent(student: Student) {
+    this.socketClient.send("/students/create", student);
   }
 
 }

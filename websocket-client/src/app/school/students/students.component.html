@@ -1,22 +1,80 @@
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Name</th>
-            <th scope="col">Lastname</th>
-            <th scope="col">Email</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <th scope="row"></th>
-            <td>Israel</td>
-            <td>Garcia</td>
-            <td>israel@hotmail.com</td>
-        </tr>
-    </tbody>
-</table>
+<app-error-handler></app-error-handler>
+<div class="container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Name</th>
+                <th scope="col">Lastname</th>
+                <th scope="col">Email</th>
+                <th scope="col">Edit user</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let student of students">
+                <th scope="row"> {{ student.id }} </th>
+                <td>{{ student.name }}</td>
+                <td>{{ student.lastName }}</td>
+                <td>{{ student.email }}</td>
+                <td> <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudent"
+                        (click)="editUser(student.id)">Edit</button> </td>
+            </tr>
+        </tbody>
+    </table>
 
-<br>
-<br>
-{{ students | json }}
+    <br>
+    <br>
+
+    <div class="row">
+        <div class="col">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudent">
+                Add student
+            </button>
+        </div>
+        <div class="col">
+            <button type="button" class="btn btn-danger" (click)="editUser(0)">
+                Get fake student
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addStudent" tabindex="-1" aria-labelledby="studentsModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="studentsModal">Add new student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="studentForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" aria-describedby="nameHelp"
+                                formControlName="name" [value]="studentForm.value.name">
+                            <div id="nameHelp" class="form-text"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="lastName" aria-describedby="lastNameHelp"
+                                formControlName="lastName" [value]="studentForm.value.lastName">
+                            <div id="lastNameHelp" class="form-text"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" aria-describedby="emailHelp"
+                                formControlName="email" [value]="studentForm.value.email">
+                            <div id="emailHelp" class="form-text"></div>
+                        </div>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                            (click)="saveStudent()">Add
+                            student</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
