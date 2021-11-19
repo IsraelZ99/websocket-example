@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
-import * as Rx from "rxjs";
-
 import * as SockJS from 'sockjs-client';
 import * as StompJs from 'stompjs';
-
 import { Observable } from 'rxjs/internal/Observable';
 import { filter, first, switchMap } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
