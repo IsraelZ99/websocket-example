@@ -2,6 +2,9 @@ package com.decsef.demowebsocket.student;
 
 import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +14,8 @@ import java.util.List;
 public class StudentService {
 
     private final StudentRepository studentRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
 
     public List<Student> readAllStudents(){
         return studentRepository.findAll();
@@ -23,6 +28,7 @@ public class StudentService {
 
     public Student createStudent(Student student){
         return studentRepository.save(student);
+//        simpMessagingTemplate.convertAndSend("/students/created", studentRepository.save(student));
     }
 
 }

@@ -13,10 +13,12 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
 import java.util.List;
 
 @Controller
 @AllArgsConstructor
+@Slf4j
 public class StudentThrowSocketController {
 
     private final StudentService studentService;
@@ -27,20 +29,21 @@ public class StudentThrowSocketController {
     }
 
     @SubscribeMapping("/students/{id}/get")
-    public Student findById(@DestinationVariable Long id) throws NotFoundException {
+    public Student findById(@DestinationVariable Long id, Principal principal) throws NotFoundException {
         return studentService.readStudentById(id);
     }
 
-    @MessageMapping("/posts/create")
-    @SendTo("/school/students/created")
-    public void saveStudent(Student student){
-        studentService.createStudent(student);
+    @MessageMapping("/students/create")
+    @SendTo("/students/created")
+    public Student saveStudent(Student student){
+        return studentService.createStudent(student);
     }
 
     @MessageExceptionHandler
-    @SendToUser("/school/error")
-    public String handleException(){
-        return "The requested post was not found";
+    @SendToUser("/students/error")
+    public String handleException(NotFoundException ex){
+        log.info("Student not found");
+        return "The requested student was not found";
     }
 
 }
