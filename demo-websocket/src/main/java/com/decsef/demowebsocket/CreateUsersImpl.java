@@ -56,9 +56,14 @@ public class CreateUsersImpl implements CommandLineRunner {
                 "Israel Garcia",
                 rolRepository.findById(2L).orElseThrow(() -> new NotFoundException("Rol not found"))
         ));
-        log.info("User: "+ user);
-
+        User user2 = userRepository.save(new User("dev.test", passwordEncoder.encode(password),
+                "Test Dev",
+                rolRepository.findById(2L).orElseThrow(() -> new NotFoundException("Rol not found"))
+        ));
+        log.info("User 1: "+ user);
+        log.info("User 2: "+ user2);
         generateToken(user);
+        generateToken(user2);
     }
 
     private void generateToken(User user) {
@@ -66,6 +71,6 @@ public class CreateUsersImpl implements CommandLineRunner {
                 user.getUsername(), password);
         Authentication authenticate = authenticationManager.authenticate(authentication);
         String token = jwtUtils.generateJwtToken(authenticate);
-        log.info("Token: "+ token);
+        log.info("Token for: "+user.getUsername()+" = "+ token);
     }
 }
